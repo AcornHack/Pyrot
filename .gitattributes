@@ -1,0 +1,5 @@
+models/FireNet filter=lfs diff=lfs merge=lfs -text
+models/README.txt filter=lfs diff=lfs merge=lfs -text
+models/FireNet/firenet.data-00000-of-00001 filter=lfs diff=lfs merge=lfs -text
+models/FireNet/firenet.index filter=lfs diff=lfs merge=lfs -text
+models/FireNet/firenet.meta filter=lfs diff=lfs merge=lfs -text
