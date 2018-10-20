@@ -4,5 +4,5 @@ Build a crowdsourcing tool for citizens to contribute to early detection, verifi
 
 # Ideas
 - Crowdsourced fire reporting with multimedia, use AI to verify fire is real and check its significance.
-- Fire tracking
+- Fire tracking using AI
 - Fire prediction
