@@ -1,3 +1,8 @@
+from flask import Flask, render_template, request, jsonify, redirect
+from flask_cors import CORS
+import cv2 as cv
+import os
+
 import os
 import sys
 import math
@@ -8,6 +13,7 @@ from tflearn.layers.conv import *
 from tflearn.layers.normalization import *
 from tflearn.layers.estimator import regression
 import cv2 as cv
+
 def construct_firenet(x,y):
     network = tflearn.input_data(shape=[None, y, x, 3], dtype=tf.float32)
     network = conv_2d(network, 64, 5, strides=4, activation="relu")
@@ -31,22 +37,29 @@ def construct_firenet(x,y):
 
 rows = 224
 cols = 224
-
 model = construct_firenet(rows, cols)
 model.load(os.path.join("models/FireNet", "firenet"), weights_only=True)
-print("\n---------------------\n")
 
-def prediction(img):
-    im = cv.resize(cv.imread(img), (rows, cols), cv.INTER_AREA)
-    output = model.predict([im])
-    return (["Fire", "Clear"][np.argmax(output)], np.max(output))
+app = Flask(__name__, static_url_path="/static")
+CORS(app)
 
-if len(sys.argv) == 2:
-    print("Prediction: {}".format(prediction(sys.argv[1])))
-else:
-    print("Prediction for fire.jpg is {}".format(prediction("fire.jpg")))
+@app.route("/")
+def main():
+	return render_template("index.html")
 
+@app.route("/result", methods=["POST"])
+def result():
+	if request.method == "POST":
+		f = request.files["file"]
+		f.save(os.path.join("ims", request.files["file"].filename))
 
-
-
-
+		im = cv.imread(os.path.join("ims", request.files["file"].filename))
+		small = cv.resize(im, (rows, cols), cv.INTER_AREA)
+		output = model.predict([small])
+		re = (["Fire", "Clear"][np.argmax(output)], np.max(output), "large")
+		if re[0] == "Fire":
+			return "I am {}% sure this is a fire. Size: {}. Evacuate immediately".format(math.trunc(re[1]*100), re[2])
+		if re[1] == "Clear":
+			return "This picture appears clear."
+if __name__ == "__main__":
+	app.run(host="127.0.0.1", port=3000, debug=True)
